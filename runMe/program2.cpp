@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -68,24 +69,25 @@ void SetAssociative(char * file, int way){
     ifstream infile(file);
     string ldSt;
     int address;
-
+    int logOf = log2(sets);
 
     // The following loop will read a line at a time
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      tag = address >> 9;
+      tag = address >> logOf;
       bool isThere = 0;
       int newPlace;
 
 
       for(int i = 0; i < way; i++){
         //check if there
-        if(setAssociative[setIndex][i] == tag){
+         if(setAssociative[setIndex][i] == tag){
            hit++;
-           recency[setIndex][i] = 3;
+           recency[setIndex][i] = way-1;
            isThere = 1;
            newPlace = i;
+	   break;
         }
       }
 
@@ -104,7 +106,7 @@ void SetAssociative(char * file, int way){
          for(int i = 0; i < way; i++){
            //check if room
            if(setAssociative[setIndex][i] == -1){
-              recency[setIndex][i] = 3;
+              recency[setIndex][i]= way-1;
               setAssociative[setIndex][i] = tag;
               replace = 0;
               newPlace = i;
@@ -124,7 +126,7 @@ void SetAssociative(char * file, int way){
 
          if(replace){
          //find replacement
-          int leastR = 4;
+          int leastR = way;
           for(int i= 0; i < way; i++){
             if(recency[setIndex][i] < leastR){
               leastR = recency[setIndex][i];
@@ -135,8 +137,8 @@ void SetAssociative(char * file, int way){
           //set replacement tag and recency. uses first least recenct slot
           for(int i = 0; i < way; i++){
             if(i == newPlace){
-              setAssociative[setIndex][i] ==tag;
-              recency[setIndex][i] = 3;
+              setAssociative[setIndex][i] =tag;
+              recency[setIndex][i] =way -1;
             }
 
             else{
@@ -145,8 +147,8 @@ void SetAssociative(char * file, int way){
 
           }
         }
-      total++;
      }
+     total++;
    }
     cout<<hit<<",";
     cout<<total<<"; ";
@@ -158,5 +160,9 @@ int main(int argc, char * argv[]){
   DirectMap(argv[1], 128);
   DirectMap(argv[1], 512);
   DirectMap(argv[1], 1024);
+  cout<<"\n";
   SetAssociative(argv[1], 2);
+  SetAssociative(argv[1],4);
+  SetAssociative(argv[1],8);
+  SetAssociative(argv[1], 16);
 }
