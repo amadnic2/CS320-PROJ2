@@ -78,12 +78,14 @@ void SetAssociative(char * file, int way){
       tag = address >> logOf;
       bool isThere = 0;
       int newPlace;
+      int oldRecency;
 
 
       for(int i = 0; i < way; i++){
         //check if there
          if(setAssociative[setIndex][i] == tag){
            hit++;
+	   oldRecency = recency[setIndex][i];
            recency[setIndex][i] = way-1;
            isThere = 1;
            newPlace = i;
@@ -94,9 +96,9 @@ void SetAssociative(char * file, int way){
       // update recency
       if(isThere){
         for(int i = 0; i < way; i++){
-          if(i == newPlace) continue;
-          else{
-            if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
+          if(i != newPlace){
+          
+            if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
         }
        }
       }
