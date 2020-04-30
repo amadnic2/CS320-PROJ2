@@ -272,6 +272,7 @@ void SetAssociativeNextLine(char * file, int way){
     int setIndex;
     int nextIndex;
     int tag;
+    int ntag;
     int sets = 512/way;
     int setAssociative[sets][way];
     int recency[sets][way];
@@ -295,7 +296,7 @@ void SetAssociativeNextLine(char * file, int way){
       setIndex = address % (sets);
       nextIndex = (address+1) % (sets);
       tag = address >> logOf;
-      nTag = (address+32)>>(logSize+5);
+      ntag = (address+32)>>(logOf+5);
       bool isThere = 0;
       bool inNext = 0;
       int newPlace;
