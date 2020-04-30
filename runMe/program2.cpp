@@ -272,7 +272,6 @@ void SetAssociativeNextLine(char * file, int way){
     int setIndex;
     int nextIndex;
     int tag;
-    int ntag;
     int sets = 512/way;
     int setAssociative[sets][way];
     int recency[sets][way];
@@ -296,7 +295,6 @@ void SetAssociativeNextLine(char * file, int way){
       setIndex = address % (sets);
       nextIndex = (address+1) % (sets);
       tag = address >> logOf;
-      ntag = (address+32)>>(logOf+5);
       bool isThere = 0;
       bool inNext = 0;
       int newPlace;
@@ -327,7 +325,7 @@ void SetAssociativeNextLine(char * file, int way){
  
       for(int i = 0; i < way; i++){
         //check if there
-         if(setAssociative[nextIndex][i] == ntag){
+         if(setAssociative[nextIndex][i] == tag){
 	   nextRecency = recency[nextIndex][i];
            recency[nextIndex][i] = way-1;
            inNext = 1;
@@ -396,7 +394,7 @@ void SetAssociativeNextLine(char * file, int way){
            //check if room
            if(setAssociative[nextIndex][i] == -1){
               recency[nextIndex][i]= way-1;
-              setAssociative[nextIndex][i] = ntag;
+              setAssociative[nextIndex][i] = tag;
               replaceN = 0;
               nextPlace = i;
               break;
@@ -426,7 +424,7 @@ void SetAssociativeNextLine(char * file, int way){
           //set replacement tag and recency. uses first least recenct slot
           for(int i = 0; i < way; i++){
             if(i == nextPlace){
-              setAssociative[nextIndex][i] = ntag;
+              setAssociative[nextIndex][i] = tag;
               recency[nextIndex][i] =way -1;
             }
 
@@ -551,7 +549,7 @@ void SetAssociativeNextLineMiss(char * file, int way){
 
           }
         }
-     }
+     
     
       for(int i = 0; i < way; i++){
         //check if there
