@@ -548,7 +548,7 @@ void SetAssociativeNextLineMiss(char * file, int way){
             }
 
           }
-        }
+         }
      
     
       for(int i = 0; i < way; i++){
@@ -617,6 +617,7 @@ void SetAssociativeNextLineMiss(char * file, int way){
 
           }
         }
+      }
      }
      total++;
    }
