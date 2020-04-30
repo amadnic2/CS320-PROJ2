@@ -49,7 +49,7 @@ void DirectMap(char * file, int size){
 
 }
 
-void SetAssociative(char * file, int way,){
+void SetAssociative(char * file, int way){
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -159,7 +159,7 @@ void SetAssociative(char * file, int way,){
 void HnC_fullAssociative(char * file){
 }
 
-void SetAssociativeWriteMiss(char * file, int way,){
+void SetAssociativeWriteMiss(char * file, int way){
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -204,7 +204,7 @@ void SetAssociativeWriteMiss(char * file, int way,){
       }
 
       // update recency
-      if(isThere && ldSt == 'L'){
+      if(isThere){
         for(int i = 0; i < way; i++){
           if(i != newPlace){
           
@@ -213,7 +213,7 @@ void SetAssociativeWriteMiss(char * file, int way,){
        }
       }
 
-      if(!isThere){
+      if(!isThere && ldSt == "L" ){
          bool replace = 1;
          for(int i = 0; i < way; i++){
            //check if room
@@ -266,7 +266,7 @@ void SetAssociativeWriteMiss(char * file, int way,){
     cout<<total<<"; ";
 }
 
-void SetAssociativeNextLine(char * file, int way,){
+void SetAssociativeNextLine(char * file, int way){
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -293,14 +293,14 @@ void SetAssociativeNextLine(char * file, int way,){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = (adress+1) % (sets);
+      nextIndex = (address+1) % (sets);
       tag = address >> logOf;
       bool isThere = 0;
       bool inNext = 0;
       int newPlace;
       int nextPlace;
       int oldRecency;
-      int nextRecency 
+      int nextRecency;
 
 
       for(int i = 0; i < way; i++){
@@ -393,41 +393,41 @@ void SetAssociativeNextLine(char * file, int way,){
         }
      }
      if(!inNext){
-         bool replace = 1;
+         bool replaceN = 1;
          for(int i = 0; i < way; i++){
            //check if room
            if(setAssociative[nextIndex][i] == -1){
               recency[nextIndex][i]= way-1;
               setAssociative[nextIndex][i] = tag;
-              replace = 0;
-              newPlace = i;
+              replaceN = 0;
+              nextPlace = i;
               break;
            }
          }
 
          //update recency
-         if(!replace){
+         if(!replaceN){
            for(int i = 0; i < way; i++){
-             if(i == newPlace) continue;
+             if(i == nextPlace) continue;
              else{
                if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
              }
            }
          }
 
-         if(replace){
+         if(replaceN){
          //find replacement
           int leastR = way;
           for(int i= 0; i < way; i++){
             if(recency[nextIndex][i] < leastR){
               leastR = recency[nextIndex][i];
-              newPlace = i;
+              nextPlace = i;
            }
           }
 
           //set replacement tag and recency. uses first least recenct slot
           for(int i = 0; i < way; i++){
-            if(i == newPlace){
+            if(i == nextPlace){
               setAssociative[nextIndex][i] =tag;
               recency[nextIndex][i] =way -1;
             }
@@ -445,7 +445,7 @@ void SetAssociativeNextLine(char * file, int way,){
     cout<<total<<"; ";
 }
 
-void SetAssociativeNextLineMiss(char * file, int way,){
+void SetAssociativeNextLineMiss(char * file, int way){
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -472,14 +472,14 @@ void SetAssociativeNextLineMiss(char * file, int way,){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = (adress+1) % (sets);
+      nextIndex = (address+1) % (sets);
       tag = address >> logOf;
       bool isThere = 0;
       bool inNext = 0;
       int newPlace;
       int nextPlace;
       int oldRecency;
-      int nextRecency 
+      int nextRecency; 
 
 
       for(int i = 0; i < way; i++){
@@ -651,7 +651,7 @@ int main(int argc, char * argv[]){
   SetAssociativeNextLine(argv[1],4);
   SetAssociativeNextLine(argv[1],8);
   SetAssociativeNextLine(argv[1], 16);
-  count<<"\n|;
+  cout<<"\n";
   SetAssociativeNextLineMiss(argv[1], 2);
   SetAssociativeNextLineMiss(argv[1],4);
   SetAssociativeNextLineMiss(argv[1],8);
