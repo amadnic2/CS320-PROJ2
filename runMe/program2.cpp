@@ -156,7 +156,85 @@ void SetAssociative(char * file, int way){
     cout<<total<<"; ";
 }
 
-void HnC_fullAssociative(char * file){
+void HnC_fullAssociative(char * file, int way){
+	
+	int sets = 512/way;
+	int setAssociative[sets][way];
+	int hNc[9][256];
+	int logOf = log2(sets);
+	
+	for (int i=0; i<sets; i++){
+		for (int j=0; j<way; j++){	
+			setAssociative[i][j] = -1;
+		}
+	}
+	
+	for (int i=0; i <9; i++){
+		for (int j =0; j<256; j++){
+			hNc[i][j] = 0;
+		}
+	}
+
+	int hits = 0;
+	int total = 0;
+	int index;
+	string ldstr;
+	int addr;
+	int tag;
+
+	ifstream inFile(file);
+	while (inFile >> ldstr >> hex >> address){
+         	addr = addr>>5;
+		index = addr % sets;
+		tag = addr>>logSize;
+		int isThere = 0;
+		//int LRUret = -1;
+
+		for (int i=0; i<way; i++){
+			if (setAssociative[index][i] == tag){
+				hits++;
+				int start = 0;
+				if (i%2 == 1){
+					start = 1;
+					i--;
+				}
+				i/= 2;
+				for (int j=8; j> -1; j--){
+					hNc[i][j] = start;
+					if (i%2 == 1){
+						start= 1;
+						i--;
+					}
+					else{
+						start = 0;
+					}
+					i /= 2;
+				 }
+				//LRUret = hotCold(k, coldness);
+				isThere = 1;
+				break;
+			
+			}
+		}
+			
+		if (isThere == 0){
+			int coldest = 0;
+			for (int i=0; i<9; i++){
+				if (hNc[i][coldest] == 0){
+					hNc[i][coldest] = 1;
+					coldest = (coldest*2)+1;
+				}
+				else{
+					hNc[i][coldest] = 0;
+					coldest = coldest*2;
+				}
+			}
+			setAssociative[index][coldest] = tag;
+		}
+		total++;
+	}
+	cout << hits << "," << total;
+}
 }
 
 void SetAssociativeWriteMiss(char * file, int way){
