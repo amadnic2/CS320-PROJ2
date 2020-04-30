@@ -295,6 +295,7 @@ void SetAssociativeNextLine(char * file, int way){
       setIndex = address % (sets);
       nextIndex = (address+1) % (sets);
       tag = address >> logOf;
+      nTag = (address+32)>>(logSize+5);
       bool isThere = 0;
       bool inNext = 0;
       int newPlace;
@@ -314,10 +315,18 @@ void SetAssociativeNextLine(char * file, int way){
 	   break;
         }
       }
+      if(isThere){
+        for(int i = 0; i < way; i++){
+          if(i != newPlace){
+            if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
+        }
+       }
+      }
+
  
-       for(int i = 0; i < way; i++){
+      for(int i = 0; i < way; i++){
         //check if there
-         if(setAssociative[nextIndex][i] == tag){
+         if(setAssociative[nextIndex][i] == ntag){
 	   nextRecency = recency[nextIndex][i];
            recency[nextIndex][i] = way-1;
            inNext = 1;
@@ -325,21 +334,9 @@ void SetAssociativeNextLine(char * file, int way){
 	   break;
         }
       }
-
-      // update recency
-      if(isThere){
-        for(int i = 0; i < way; i++){
-          if(i != newPlace){
-          
-            if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
-        }
-       }
-      }
-
       if(inNext){
         for(int i = 0; i < way; i++){
           if(i != nextPlace){
-          
             if(recency[nextIndex][i] > 0 && recency[nextIndex][i] > nextRecency)  recency[nextIndex][i]--;
         }
        }
@@ -398,7 +395,7 @@ void SetAssociativeNextLine(char * file, int way){
            //check if room
            if(setAssociative[nextIndex][i] == -1){
               recency[nextIndex][i]= way-1;
-              setAssociative[nextIndex][i] = tag;
+              setAssociative[nextIndex][i] = ntag;
               replaceN = 0;
               nextPlace = i;
               break;
@@ -428,7 +425,7 @@ void SetAssociativeNextLine(char * file, int way){
           //set replacement tag and recency. uses first least recenct slot
           for(int i = 0; i < way; i++){
             if(i == nextPlace){
-              setAssociative[nextIndex][i] =tag;
+              setAssociative[nextIndex][i] = ntag;
               recency[nextIndex][i] =way -1;
             }
 
