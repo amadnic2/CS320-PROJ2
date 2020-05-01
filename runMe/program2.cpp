@@ -12,7 +12,7 @@
 
 using namespace std;
 
-cont int biggest = 1024;
+const int biggest = 1024;
 
 void DirectMap(char * file, int size){
 
@@ -341,14 +341,15 @@ void SetAssociativeWriteMiss(char * file, int way){
 }
 
 //had to add this because code for the following two functions became too long to debug
-int LRU(int index, int way, int hit_index, int recency[][1024]){
+int LRU(int index, int way, int hit_index, int recency[][biggest]){
 	//if theres a hit the index of the hit is passed
 	if (hit_index != -1){
+		printf("4");
 		int past = recency[index][hit_index];
 		if (past != way-1 ){
 			recency[index][hit_index] = way-1;
 			for (int i=0; i<way; i++){
-				if (i != hit_index && recents[index][i] < past && recents[index][i] > 0){
+				if (i != hit_index && recency[index][i] < past && recency[index][i] > 0){
 					(recency[index][i])--;
 				}	
 			}
@@ -359,6 +360,7 @@ int LRU(int index, int way, int hit_index, int recency[][1024]){
 	else{
 		for (int i=0; i<way; i++){
 			if (recency[index][i] == -1){
+				printf("heyo");
 				recency[index][i] = way-1;
 				for (int j=0; j<i; j++){
 					recency[index][j]--;
@@ -370,8 +372,8 @@ int LRU(int index, int way, int hit_index, int recency[][1024]){
 		int newPlace;
 		int leastR = way;
 		for(int i= 0; i < way; i++){
-                	if(recency[setIndex][i] < leastR){
-                		leastR = recency[setIndex][i];
+                	if(recency[index][i] < leastR){
+                		leastR = recency[index][i];
              		       newPlace = i;
            		}
           	}
@@ -379,19 +381,19 @@ int LRU(int index, int way, int hit_index, int recency[][1024]){
          	 //set replacement tag and recency. uses first least recenct slot
          	 for(int i = 0; i < way; i++){
           	  	if(i == newPlace){
-           		  setAssociative[setIndex][i] =tag;
-             		  recency[setIndex][i] =way -1;
+             		  recency[index][i] =way -1;
            	 	}
 
            	 	else{
-              			if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
+              			if(recency[index][i] > 0)  recency[index][i]--;
            		 }
 
           	}
 		return newPlace;
 	}
 }
-void SetAssociativeNextLine(char * file, int way){
+void SetAssociativeNextLine(char * file, int way){ 
+    printf("hye");
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -400,20 +402,21 @@ void SetAssociativeNextLine(char * file, int way){
     int sets = 512/way;
     int setAssociative[sets][way];
     int recency[sets][biggest];
-
+    printf("hey45");
     for(int i = 0; i < sets; i++){
       for(int j = 0; j < way; j++){
         setAssociative[i][j] = -1;
         recency[i][j] = 0;
       }
     }
+   
 
     //open file
     ifstream infile(file);
     string ldSt;
     int address;
     int logOf = log2(sets);
-
+    printf("hi");
     // The following loop will read a line at a time
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
@@ -427,16 +430,21 @@ void SetAssociativeNextLine(char * file, int way){
 
       for(int i = 0; i < way; i++){
         //check if there
-         if(setAssociative[setIndex][i] == tag){
+       //  if(setAssociative[setIndex][i] == tag){
+          printf("whats food");
            hit++;
 	   LRU(setIndex, way, i, recency);
 	   isThere =1;
            break;
-      }
+        // }
+     }
 
+   // } 
+      printf("whats good");
       if(!isThere){
+	  printf("1");
       	  LRU_val = LRU(setIndex, way, -1, recency);
-	  setAssociative[setIndex][LRU_val]
+	  setAssociative[setIndex][LRU_val];
      }
 	      
       for(int i = 0; i < way; i++){
@@ -445,16 +453,22 @@ void SetAssociativeNextLine(char * file, int way){
 	   LRU(nextIndex, way, i, recency);
 	   inNext =1;
            break;
-      }
+         }
+     }
       
      if(!inNext){
           LRU_val = LRU(nextIndex, way, -1, recency);
-	  setAssociative[nextIndex][LRU_val]
+	  setAssociative[nextIndex][LRU_val];
      }
-     total++;
-   }
+    
+    
+    
+    total++;
+    }
+   
     cout<<hit<<",";
     cout<<total<<"; ";
+
 }
 
 void SetAssociativeNextLineMiss(char * file, int way){
@@ -498,11 +512,12 @@ void SetAssociativeNextLineMiss(char * file, int way){
 	   LRU(setIndex, way, i, recency);
 	   isThere =1;
            break;
-      }
+     	 }
+     }
 
       if(!isThere){
       	  LRU_val = LRU(setIndex, way, -1, recency);
-	  setAssociative[setIndex][LRU_val]
+	  setAssociative[setIndex][LRU_val];
      
 	      
       	for(int i = 0; i < way; i++){
@@ -511,13 +526,15 @@ void SetAssociativeNextLineMiss(char * file, int way){
 	  	 LRU(nextIndex, way, i, recency);
 	   	inNext =1;
            	break;
-      	}
+      		}	
+	}
       
      	if(!inNext){
          	 LRU_val = LRU(nextIndex, way, -1, recency);
-	  	setAssociative[nextIndex][LRU_val]
+	  	setAssociative[nextIndex][LRU_val];
      	}
-	}
+     }
+    
      total++;
    }
     cout<<hit<<",";
@@ -545,6 +562,7 @@ int main(int argc, char * argv[]){
   SetAssociativeWriteMiss(argv[1],8);
   SetAssociativeWriteMiss(argv[1], 16);
   cout<<"\n";
+  cout<<"yo";
   SetAssociativeNextLine(argv[1], 2);
   SetAssociativeNextLine(argv[1],4);
   SetAssociativeNextLine(argv[1],8);
