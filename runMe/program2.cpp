@@ -12,6 +12,8 @@
 
 using namespace std;
 
+cont int biggest = 1024;
+
 void DirectMap(char * file, int size){
 
     int hit = 0;
@@ -338,6 +340,57 @@ void SetAssociativeWriteMiss(char * file, int way){
     cout<<total<<"; ";
 }
 
+//had to add this because code for the following two functions became too long to debug
+int LRU(int index, int way, int hit_index, int recency[][1024]){
+	//if theres a hit the index of the hit is passed
+	if (hit_index != -1){
+		int past = recency[index][hit_index];
+		if (past != way-1 ){
+			recency[index][hit_index] = way-1;
+			for (int i=0; i<way; i++){
+				if (i != hit_index && recents[index][i] < past && recents[index][i] > 0){
+					(recency[index][i])--;
+				}	
+			}
+		}	
+		return -1;
+	}
+	//otherwise its a miss
+	else{
+		for (int i=0; i<way; i++){
+			if (recency[index][i] == -1){
+				recency[index][i] = way-1;
+				for (int j=0; j<i; j++){
+					recency[index][j]--;
+				}
+				return i;
+			}
+		}
+		
+		int newPlace;
+		int leastR = way;
+		for(int i= 0; i < way; i++){
+                	if(recency[setIndex][i] < leastR){
+                		leastR = recency[setIndex][i];
+             		       newPlace = i;
+           		}
+          	}
+
+         	 //set replacement tag and recency. uses first least recenct slot
+         	 for(int i = 0; i < way; i++){
+          	  	if(i == newPlace){
+           		  setAssociative[setIndex][i] =tag;
+             		  recency[setIndex][i] =way -1;
+           	 	}
+
+           	 	else{
+              			if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
+           		 }
+
+          	}
+		return newPlace;
+	}
+}
 void SetAssociativeNextLine(char * file, int way){
     int hit = 0;
     int total = 0;
@@ -346,7 +399,7 @@ void SetAssociativeNextLine(char * file, int way){
     int tag;
     int sets = 512/way;
     int setAssociative[sets][way];
-    int recency[sets][way];
+    int recency[sets][biggest];
 
     for(int i = 0; i < sets; i++){
       for(int j = 0; j < way; j++){
@@ -369,143 +422,34 @@ void SetAssociativeNextLine(char * file, int way){
       tag = address >> logOf;
       bool isThere = 0;
       bool inNext = 0;;
-      int newPlace;
-      int nextPlace;
-      int oldRecency;
-      int nextRecency;
+      int LRU_val = -1;
 
 
       for(int i = 0; i < way; i++){
         //check if there
          if(setAssociative[setIndex][i] == tag){
            hit++;
-	   oldRecency = recency[setIndex][i];
-           recency[setIndex][i] = way-1;
-           isThere = 1;
-           newPlace = i;
-	   break;
-        }
-      }
-      if(isThere && oldRecency != way-1){
-        for(int i = 0; i < way; i++){
-          if(i != newPlace){
-            if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
-        }
-       }
-      }
-
- 
-      for(int i = 0; i < way; i++){
-        //check if there
-         if(setAssociative[nextIndex][i] == tag){
-	   nextRecency = recency[nextIndex][i];
-           recency[nextIndex][i] = way-1;
-           inNext = 1;
-           nextPlace = i;
-	   break;
-        }
-      }
-      if(inNext && nextRecency != way-1){
-        for(int i = 0; i < way; i++){
-          if(i != nextPlace){
-            if(recency[nextIndex][i] > 0 && recency[nextIndex][i] > nextRecency)  recency[nextIndex][i]--;
-        }
-       }
+	   LRU(setIndex, way, i, recency);
+	   isThere =1;
+           break;
       }
 
       if(!isThere){
-         bool replace = 1;
-         for(int i = 0; i < way; i++){
-           //check if room
-           if(setAssociative[setIndex][i] == -1){
-              recency[setIndex][i]= way-1;
-              setAssociative[setIndex][i] = tag;
-              replace = 0;
-              newPlace = i;
-              break;
-           }
-         }
-
-         //update recency
-         if(!replace){
-           for(int i = 0; i < way; i++){
-             if(i == newPlace) continue;
-             else{
-               if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
-             }
-           }
-         }
-
-         if(replace){
-         //find replacement
-          int leastR = way;
-          for(int i= 0; i < way; i++){
-            if(recency[setIndex][i] < leastR){
-              leastR = recency[setIndex][i];
-              newPlace = i;
-           }
-          }
-
-          //set replacement tag and recency. uses first least recenct slot
-          for(int i = 0; i < way; i++){
-            if(i == newPlace){
-              setAssociative[setIndex][i] =tag;
-              recency[setIndex][i] =way -1;
-            }
-
-            else{
-              if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
-            }
-
-          }
-        }
+      	  LRU_val = LRU(setIndex, way, -1, recency);
+	  setAssociative[setIndex][LRU_val]
      }
+	      
+      for(int i = 0; i < way; i++){
+        //check if there
+         if(setAssociative[nextIndex][i] == tag){
+	   LRU(nextIndex, way, i, recency);
+	   inNext =1;
+           break;
+      }
+      
      if(!inNext){
-         bool replaceN = 1;
-         for(int i = 0; i < way; i++){
-           //check if room
-           if(setAssociative[nextIndex][i] == -1){
-              recency[nextIndex][i]= way-1;
-              setAssociative[nextIndex][i] = tag;
-              replaceN = 0;
-              nextPlace = i;
-              break;
-           }
-         }
-
-         //update recency
-         if(!replaceN){
-           for(int i = 0; i < way; i++){
-             if(i == nextPlace) continue;
-             else{
-               if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
-             }
-           }
-         }
-
-         if(replaceN){
-         //find replacement
-          int leastR = way;
-          for(int i= 0; i < way; i++){
-            if(recency[nextIndex][i] < leastR){
-              leastR = recency[nextIndex][i];
-              nextPlace = i;
-           }
-          }
-
-          //set replacement tag and recency. uses first least recenct slot
-          for(int i = 0; i < way; i++){
-            if(i == nextPlace){
-              setAssociative[nextIndex][i] = tag;
-              recency[nextIndex][i] =way -1;
-            }
-
-            else{
-              if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
-            }
-
-          }
-        }
+          LRU_val = LRU(nextIndex, way, -1, recency);
+	  setAssociative[nextIndex][LRU_val]
      }
      total++;
    }
@@ -521,7 +465,7 @@ void SetAssociativeNextLineMiss(char * file, int way){
     int tag;
     int sets = 512/way;
     int setAssociative[sets][way];
-    int recency[sets][way];
+    int recency[sets][biggest];
 
     for(int i = 0; i < sets; i++){
       for(int j = 0; j < way; j++){
@@ -540,157 +484,40 @@ void SetAssociativeNextLineMiss(char * file, int way){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = (address+32);
+      nextIndex = address+1 % sets;
       tag = address >> logOf;
       bool isThere = 0;
-      bool inNext = 0;
-      int newPlace;
-      int nextPlace;
-      int oldRecency;
-      int nextRecency; 
+      bool inNext = 0;;
+      int LRU_val = -1;
 
 
       for(int i = 0; i < way; i++){
         //check if there
          if(setAssociative[setIndex][i] == tag){
            hit++;
-	   oldRecency = recency[setIndex][i];
-           recency[setIndex][i] = way-1;
-           isThere = 1;
-           newPlace = i;
-	   break;
-        }
-      }
- 
- 
-
-      // update recency
-      if(isThere){
-        for(int i = 0; i < way; i++){
-          if(i != newPlace){
-          
-            if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
-        }
-       }
+	   LRU(setIndex, way, i, recency);
+	   isThere =1;
+           break;
       }
 
-      
       if(!isThere){
-         bool replace = 1;
-         for(int i = 0; i < way; i++){
-           //check if room
-           if(setAssociative[setIndex][i] == -1){
-              recency[setIndex][i]= way-1;
-              setAssociative[setIndex][i] = tag;
-              replace = 0;
-              newPlace = i;
-              break;
-           }
-         }
-
-         //update recency
-         if(!replace){
-           for(int i = 0; i < way; i++){
-             if(i == newPlace) continue;
-             else{
-               if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
-             }
-           }
-         }
-
-         if(replace){
-         //find replacement
-          int leastR = way;
-          for(int i= 0; i < way; i++){
-            if(recency[setIndex][i] < leastR){
-              leastR = recency[setIndex][i];
-              newPlace = i;
-           }
-          }
-
-          //set replacement tag and recency. uses first least recenct slot
-          for(int i = 0; i < way; i++){
-            if(i == newPlace){
-              setAssociative[setIndex][i] =tag;
-              recency[setIndex][i] =way -1;
-            }
-
-            else{
-              if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
-            }
-
-          }
-         }
+      	  LRU_val = LRU(setIndex, way, -1, recency);
+	  setAssociative[setIndex][LRU_val]
      
-    
-      for(int i = 0; i < way; i++){
+	      
+      	for(int i = 0; i < way; i++){
         //check if there
-         if(setAssociative[nextIndex][i] == tag){
-	   nextRecency = recency[nextIndex][i];
-           recency[nextIndex][i] = way-1;
-           inNext = 1;
-           nextPlace = i;
-	   break;
-        }
-      }
-	
-      if(inNext){
-        for(int i = 0; i < way; i++){
-          if(i != nextPlace){
-          
-            if(recency[nextIndex][i] > 0 && recency[nextIndex][i] > nextRecency)  recency[nextIndex][i]--;
-        }
-       }
-      }
-	    
-     if(!inNext){
-         bool replace = 1;
-         for(int i = 0; i < way; i++){
-           //check if room
-           if(setAssociative[nextIndex][i] == -1){
-              recency[nextIndex][i]= way-1;
-              setAssociative[nextIndex][i] = tag;
-              replace = 0;
-              newPlace = i;
-              break;
-           }
-         }
-
-         //update recency
-         if(!replace){
-           for(int i = 0; i < way; i++){
-             if(i == newPlace) continue;
-             else{
-               if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
-             }
-           }
-         }
-
-         if(replace){
-         //find replacement
-          int leastR = way;
-          for(int i= 0; i < way; i++){
-            if(recency[nextIndex][i] < leastR){
-              leastR = recency[nextIndex][i];
-              newPlace = i;
-           }
-          }
-
-          //set replacement tag and recency. uses first least recenct slot
-          for(int i = 0; i < way; i++){
-            if(i == newPlace){
-              setAssociative[nextIndex][i] =tag;
-              recency[nextIndex][i] =way -1;
-            }
-
-            else{
-              if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
-            }
-
-          }
-        }
-      }
-     }
+         	if(setAssociative[nextIndex][i] == tag){
+	  	 LRU(nextIndex, way, i, recency);
+	   	inNext =1;
+           	break;
+      	}
+      
+     	if(!inNext){
+         	 LRU_val = LRU(nextIndex, way, -1, recency);
+	  	setAssociative[nextIndex][LRU_val]
+     	}
+	}
      total++;
    }
     cout<<hit<<",";
