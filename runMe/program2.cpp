@@ -346,7 +346,7 @@ int LRU(int index, int way, int hit_index, int recency[][biggest]){
 	if (hit_index != -1){
 		printf("4");
 		int past = recency[index][hit_index];
-		if (past != way-1 ){
+                if(past != way -1){
 			recency[index][hit_index] = way-1;
 			for (int i=0; i<way; i++){
 				if (i != hit_index && recency[index][i] < past && recency[index][i] > 0){
@@ -562,15 +562,15 @@ int main(int argc, char * argv[]){
   SetAssociativeWriteMiss(argv[1],8);
   SetAssociativeWriteMiss(argv[1], 16);
   cout<<"\n";
-  cout<<"yo";
+ cout<<"yo";
   SetAssociativeNextLine(argv[1], 2);
-  SetAssociativeNextLine(argv[1],4);
+ /* SetAssociativeNextLine(argv[1],4);
   SetAssociativeNextLine(argv[1],8);
   SetAssociativeNextLine(argv[1], 16);
-  cout<<"\n";
-  SetAssociativeNextLineMiss(argv[1], 2);
+  cout<<"\n";*/
+ /* SetAssociativeNextLineMiss(argv[1], 2);
   SetAssociativeNextLineMiss(argv[1],4);
   SetAssociativeNextLineMiss(argv[1],8);
-  SetAssociativeNextLineMiss(argv[1], 16);
+  SetAssociativeNextLineMiss(argv[1], 16);*/
    
 }
