@@ -31,7 +31,7 @@ void DirectMap(char * file, int size){
     int logOf = log2(size);
 
   	// The following loop will read a line at a time
-  	while(infile >> ldSt >> std::hex >> address) {
+  while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       index = address % size;
       tag = address >> logOf;
@@ -43,9 +43,9 @@ void DirectMap(char * file, int size){
       else hit++;
 
       total++;
-  	}
-    cout<<hit<<",";
-  	cout<<total<<"; ";
+   }
+   cout<<hit<<",";
+  cout<<total<<"; ";
 
 }
 
@@ -365,7 +365,7 @@ void SetAssociativeNextLine(char * file, int way){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = setIndex +32;
+      nextIndex = address+1 % sets;
       tag = address >> logOf;
       bool isThere = 0;
       bool inNext = 0;;
@@ -386,7 +386,7 @@ void SetAssociativeNextLine(char * file, int way){
 	   break;
         }
       }
-      if(isThere){
+      if(isThere && oldRecency != way-1){
         for(int i = 0; i < way; i++){
           if(i != newPlace){
             if(recency[setIndex][i] > 0 && recency[setIndex][i] > oldRecency)  recency[setIndex][i]--;
@@ -405,7 +405,7 @@ void SetAssociativeNextLine(char * file, int way){
 	   break;
         }
       }
-      if(inNext){
+      if(inNext && nextRecency != way-1){
         for(int i = 0; i < way; i++){
           if(i != nextPlace){
             if(recency[nextIndex][i] > 0 && recency[nextIndex][i] > nextRecency)  recency[nextIndex][i]--;
