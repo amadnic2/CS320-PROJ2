@@ -379,6 +379,7 @@ int LRU(int index, int way, int hit_index, int recency[][biggest]){
           	}
 
          	 //set replacement tag and recency. uses first least recenct slot
+		 if(leastR != way-1){
          	 for(int i = 0; i < way; i++){
           	  	if(i == newPlace){
              		  recency[index][i] =way -1;
@@ -389,10 +390,11 @@ int LRU(int index, int way, int hit_index, int recency[][biggest]){
            		 }
 
           	}
+		 }
 		return newPlace;
 	}
 }
-void SetAssociativeNextLine(char * file, int way){ 
+void SA_NextLine(char * file, int way){ 
     printf("hye");
     int hit = 0;
     int total = 0;
@@ -471,7 +473,7 @@ void SetAssociativeNextLine(char * file, int way){
 
 }
 
-void SetAssociativeNextLineMiss(char * file, int way){
+void SA_NextLineMiss(char * file, int way){
     int hit = 0;
     int total = 0;
     int setIndex;
@@ -563,7 +565,7 @@ int main(int argc, char * argv[]){
   SetAssociativeWriteMiss(argv[1], 16);
   cout<<"\n";
  cout<<"yo";
-  SetAssociativeNextLine(argv[1], 2);
+  SA_NextLine(argv[1], 2);
  /* SetAssociativeNextLine(argv[1],4);
   SetAssociativeNextLine(argv[1],8);
   SetAssociativeNextLine(argv[1], 16);
