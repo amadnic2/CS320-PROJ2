@@ -158,59 +158,52 @@ void SetAssociative(char * file, int way){
 
 void HnC_fullAssociative(char * file, int way){
 	
-	int sets = 512/way;
-	int setAssociative[sets][way];
-	int hNc[9][256];
-	int logOf = log2(sets);
+	int cache[way];
+	int hNc[511];
 	
-	for (int i=0; i<sets; i++){
-		for (int j=0; j<way; j++){	
-			setAssociative[i][j] = -1;
-		}
+	
+	
+	for (int j=0; j<way; j++){	
+		cache[j] = -1;
 	}
 	
-	for (int i=0; i <9; i++){
-		for (int j =0; j<256; j++){
-			hNc[i][j] = 0;
-		}
+	
+	for (int i=0; i <511; i++){
+		hNc[i] = 0;
 	}
 
 	int hits = 0;
 	int total = 0;
-	int index;
 	string ldstr;
-	int addr;
+	int address;
 	int tag;
 
 	ifstream inFile(file);
 	while (inFile >> ldstr >> hex >> address){
-         	addr = addr>>5;
-		index = addr % sets;
-		tag = addr>>logSize;
+         	address = address>>5;
+		tag = address;
 		int isThere = 0;
-		//int LRUret = -1;
 
 		for (int i=0; i<way; i++){
-			if (setAssociative[index][i] == tag){
+			if (cache[i] == tag){
+		                int hc_index;
+				hc_index = 255 + i/2;
 				hits++;
-				int start = 0;
-				if (i%2 == 1){
-					start = 1;
-					i--;
-				}
-				i/= 2;
-				for (int j=8; j> -1; j--){
-					hNc[i][j] = start;
-					if (i%2 == 1){
+				int start;
+				if(hNc[hc_index]  == 0) start =1;
+				else start = 0;
+				while( hc_index > 0){
+					hNc[hc_index] =  start;
+					if (hc_index%2 == 1){
 						start= 1;
-						i--;
+						hc_index--;
 					}
 					else{
 						start = 0;
 					}
-					i /= 2;
+					hc_index /= 2;
 				 }
-				//LRUret = hotCold(k, coldness);
+				
 				isThere = 1;
 				break;
 			
@@ -219,23 +212,24 @@ void HnC_fullAssociative(char * file, int way){
 			
 		if (isThere == 0){
 			int coldest = 0;
-			for (int i=0; i<9; i++){
-				if (hNc[i][coldest] == 0){
-					hNc[i][coldest] = 1;
+			while(coldest*2	+1  < 511){
+				if (hNc[coldest] == 0){
+					hNc[coldest] = 1;
 					coldest = (coldest*2)+1;
 				}
 				else{
-					hNc[i][coldest] = 0;
-					coldest = coldest*2;
+					hNc[coldest] = 0;
+					coldest =( coldest*2);
 				}
 			}
-			setAssociative[index][coldest] = tag;
-		}
+			cache[coldest] = tag;
+	         	}
+		
 		total++;
 	}
 	cout << hits << "," << total;
 }
-}
+
 
 void SetAssociativeWriteMiss(char * file, int way){
     int hit = 0;
@@ -371,10 +365,10 @@ void SetAssociativeNextLine(char * file, int way){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = (address+1) % (sets);
+      nextIndex = setIndex +32;
       tag = address >> logOf;
       bool isThere = 0;
-      bool inNext = 0;
+      bool inNext = 0;;
       int newPlace;
       int nextPlace;
       int oldRecency;
@@ -546,7 +540,7 @@ void SetAssociativeNextLineMiss(char * file, int way){
     while(infile >> ldSt >> std::hex >> address) {
       address = address >> 5;
       setIndex = address % (sets);
-      nextIndex = (address+1) % (sets);
+      nextIndex = (address+32);
       tag = address >> logOf;
       bool isThere = 0;
       bool inNext = 0;
@@ -716,6 +710,8 @@ int main(int argc, char * argv[]){
   SetAssociative(argv[1], 16);
   cout<<"\n";
   SetAssociative(argv[1], 512);
+  cout<<"\n";
+  HnC_fullAssociative(argv[1], 512);
   cout<<"\n";
   SetAssociativeWriteMiss(argv[1], 2);
   SetAssociativeWriteMiss(argv[1],4);
