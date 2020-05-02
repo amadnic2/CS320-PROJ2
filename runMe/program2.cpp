@@ -422,6 +422,7 @@ void SA_NextLine(char * file, int way){
       bool isThere = 0;
       bool inNext = 0;;
       int LRU_val = -1;
+      int newPlace;
 
 
       for(int i = 0; i < way; i++){
@@ -456,7 +457,7 @@ void SA_NextLine(char * file, int way){
              }
            }
          }
-	 else(replace){
+	 else{
       	  LRU_val = LRU(setIndex, way, -1, recency);
 	  setAssociative[setIndex][LRU_val]= tag;
 	 }
@@ -491,7 +492,7 @@ void SA_NextLine(char * file, int way){
              }
            }
          }
-         else(replace){
+         else{
 	   LRU_val = LRU(nextIndex, way, -1, recency);
 	  setAssociative[nextIndex][LRU_val] = tag;
 	 }
