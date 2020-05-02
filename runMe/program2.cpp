@@ -553,9 +553,29 @@ void SA_NextLineMiss(char * file, int way){
      }
 
       if(!isThere){
+	   bool replace = 1;
+         for(int i = 0; i < way; i++){
+           //check if room
+           if(setAssociative[setIndex][i] == -1){
+              recency[setIndex][i]= way-1;
+              setAssociative[setIndex][i] = tag;
+              replace = 0;
+              newPlace = i;
+              break;
+           }
+         }
+	 if(!replace){
+           for(int i = 0; i < way; i++){
+             if(i == newPlace) continue;
+             else{
+               if(recency[setIndex][i] > 0)  recency[setIndex][i]--;
+             }
+           }
+         }
+	 else{
       	  LRU_val = LRU(setIndex, way, -1, recency);
 	  setAssociative[setIndex][LRU_val]= tag;
-     
+	 }
 	      
       	for(int i = 0; i < way; i++){
         //check if there
@@ -567,8 +587,29 @@ void SA_NextLineMiss(char * file, int way){
 	}
       
      	if(!inNext){
-         	 LRU_val = LRU(nextIndex, way, -1, recency);
-	  	setAssociative[nextIndex][LRU_val] = tag;
+         	  bool replace = 1;
+         for(int i = 0; i < way; i++){
+           //check if room
+           if(setAssociative[nextIndex][i] == -1){
+              recency[nextIndex][i]= way-1;
+              setAssociative[nextIndex][i] = tag;
+              replace = 0;
+              newPlace = i;
+              break;
+           }
+         }
+	 if(!replace){
+           for(int i = 0; i < way; i++){
+             if(i == newPlace) continue;
+             else{
+               if(recency[nextIndex][i] > 0)  recency[nextIndex][i]--;
+             }
+           }
+         }
+         else{
+	   LRU_val = LRU(nextIndex, way, -1, recency);
+	  setAssociative[nextIndex][LRU_val] = tag;
+	 }
 	}
      }
     
