@@ -192,18 +192,21 @@ void HnC_fullAssociative(char * file, int way){
 				hc_index = 255 + i/2;
 				hits++;
 				int start;
-				if(hNc[hc_index]  == 0) start =1;
+				if(i%2 == 1) start =1;
 				else start = 0;
-				while( hc_index > 0){
+				while( hc_index >=  0){
+					int temp = hc_index;
 					hNc[hc_index] =  start;
 					if (hc_index%2 == 1){
 						start= 1;
-						hc_index--;
+						hc_index -=2;
 					}
 					else{
+						hc_index--;
 						start = 0;
 					}
 					hc_index /= 2;
+					if(temp == 0) break;
 				 }
 				
 				isThere = 1;
@@ -214,7 +217,7 @@ void HnC_fullAssociative(char * file, int way){
 			
 		if (isThere == 0){
 			int coldest = 0;
-			while(coldest*2	+1  < 511){
+			while(coldest*2	+2 <= 512){
 				if (hNc[coldest] == 0){
 					hNc[coldest] = 1;
 					coldest = (coldest*2)+2;
@@ -345,14 +348,14 @@ int LRU(int index, int way, int hit_index, int recency[][biggest]){
 	//if theres a hit the index of the hit is passed
 	if (hit_index != -1){
 		int past = recency[index][hit_index];
-                if(past != way -1){
+                
 			recency[index][hit_index] = way-1;
 			for (int i=0; i<way; i++){
 				if (i != hit_index && recency[index][i] < past && recency[index][i] > 0){
 					(recency[index][i])--;
 				}	
 			}
-		}	
+			
 		return -1;
 	}
 	//otherwise its a miss
